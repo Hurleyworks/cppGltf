@@ -32,8 +32,8 @@ local ROOT = "../../"
 project "Core"
      kind "StaticLib"
     language "C++"
-	defines { "NANOVG_GL3", "_ENABLE_EXTENDED_ALIGNED_STORAGE",
-			"__TBB_NO_IMPLICIT_LINKAGE", "OIIO_STATIC_DEFINE", "CHANGE_G3LOG_DEBUG_TO_DBUG"}
+	defines { "_ENABLE_EXTENDED_ALIGNED_STORAGE",
+			  "CHANGE_G3LOG_DEBUG_TO_DBUG"}
 	flags { "MultiProcessorCompile", "NoMinimalRebuild" }
 	
 	if _ACTION == "vs2019" then
@@ -70,17 +70,14 @@ project "Core"
 	
 	local THIRD_PARTY_DIR = "thirdparty/"
 	
-	
 	includedirs
 	{
 		SOURCE_DIR,
 		BERSERKO_DIR,
 		MODULE_ROOT,
 	
-		
 		THIRD_PARTY_DIR,
 		THIRD_PARTY_DIR .. "g3log/src",
-	
 	}
 	
 	filter {} -- clear filter!
@@ -102,10 +99,9 @@ project "Core"
 		defines 
 		{ 
 			"_CRT_SECURE_NO_WARNINGS",
-			 "JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED", "NANOVG_GL3",
 			--https://github.com/KjellKod/g3log/issues/337
 			"_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING",
-			"_USE_MATH_DEFINES", -- no need because OIIO defines it "NOMINMAX",
+			"_USE_MATH_DEFINES", 
 			
 		}
 		
@@ -130,5 +126,5 @@ project "Core"
 	
 	-- add projects here
 	include "sandbox/HelloWorld"
-	
+	include "sandbox/cppGltf"
 	
