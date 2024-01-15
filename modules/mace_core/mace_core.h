@@ -48,7 +48,6 @@
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
 
-
 // json
 #include <json/json.hpp>
 using nlohmann::json;
@@ -56,12 +55,9 @@ using nlohmann::json;
 // less typing
 namespace fs = std::filesystem;
 
-
 #include "excludeFromBuild/basics/Util.h"
 
 namespace mace
 {
-
-
 
 } // namespace mace

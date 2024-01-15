@@ -7,11 +7,9 @@ namespace Jahley
 {
     class App
     {
-    public:
-       
+     public:
         virtual ~App();
 
-        
         // Method that runs the application's main loop, handling user input and redrawing the window as necessary.
         void run();
 
@@ -20,23 +18,21 @@ namespace Jahley
         virtual void update() {}
         virtual void onInit() {}
         virtual void onCrash() {}
-       
 
         // Methods for handling crashes that occur during the application's execution.
         void preCrash();
-        void onFatalError(g3::FatalMessagePtr fatal_message);
+        void onFatalError (g3::FatalMessagePtr fatal_message);
 
-    protected:
+     protected:
         App();
 
-       
         // Boolean value indicating whether the application is currently running.
         bool isRunning = true;
 
         // Timestamp indicating when the application was started.
         std::chrono::time_point<std::chrono::system_clock> startTime = std::chrono::system_clock::now();
 
-    private:
+     private:
         // Boolean value indicating whether the application is windowed or not.
         bool windowApp = false;
 
