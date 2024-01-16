@@ -16,7 +16,6 @@ cgModelPtr ModelBuilder::buildModelList()
 
     for (const auto& mesh : data.meshes)
     {
-        
         for (const auto& primitive : mesh.primitives)
         {
             // one cgModel for each primitive
@@ -48,15 +47,14 @@ cgModelPtr ModelBuilder::buildModelList()
                 int accessorIndex = primitive.attributes.at ("TEXCOORD_0");
                 const Accessor& accessor = data.accessors[accessorIndex];
 
-                getVertexFloatAttribute (model->UV, accessor);
+                getVertexFloatAttribute (model->UV0, accessor);
             }
             if (primitive.attributes.find ("TEXCOORD_1") != primitive.attributes.end())
             {
                 int accessorIndex = primitive.attributes.at ("TEXCOORD_1");
                 const Accessor& accessor = data.accessors[accessorIndex];
 
-                // FIXME 
-                getVertexFloatAttribute (model->UV, accessor);
+                getVertexFloatAttribute (model->UV1, accessor);
             }
 
             model->S.push_back (surface);
@@ -175,7 +173,8 @@ cgModelPtr ModelBuilder::forgeIntoOne (const ModelList& models)
     flattenedModel->V.resize (3, totalVertices);
 
     // FIXME some meshes don't have UV data (Storm Trooper for example)
-    flattenedModel->UV.resize (2, totalVertices);
+    // and what about UV1?
+    flattenedModel->UV0.resize (2, totalVertices);
 
     // Copy vertex and uv data from input meshes to the flattened mesh.
     for (uint32_t index = 0; index < models.size(); ++index)
@@ -184,8 +183,8 @@ cgModelPtr ModelBuilder::forgeIntoOne (const ModelList& models)
         std::memcpy (flattenedModel->V.data() + vertexOffsets[index] * 3, mesh->V.data(), mesh->vertexCount() * 3 * sizeof (float));
 
         // some meshes don't have UV data
-        if (mesh->UV.cols())
-            std::memcpy (flattenedModel->UV.data() + vertexOffsets[index] * 2, mesh->UV.data(), mesh->vertexCount() * 2 * sizeof (float));
+        if (mesh->UV0.cols())
+            std::memcpy (flattenedModel->UV0.data() + vertexOffsets[index] * 2, mesh->UV0.data(), mesh->vertexCount() * 2 * sizeof (float));
     }
 
     // Update triangle indices in the flattened mesh with new vertex offsets.

@@ -11,7 +11,8 @@ struct cgModel
     MatrixXf V;  // vertices
     MatrixXf N;  // vertex normals
     MatrixXf FN; // face normals
-    MatrixXf UV; // uvs
+    MatrixXf UV0; // uv0
+    MatrixXf UV1; // uv1
 
     // list of Surfaces
     std::vector<cgModelSurface> S;
@@ -33,7 +34,8 @@ struct cgModel
     {
         V.resize (3, 0);
         N.resize (3, 0);
-        UV.resize (2, 0);
+        UV0.resize (2, 0);
+        UV1.resize (2, 0);
         triCount = 0;
         S.clear();
     }
