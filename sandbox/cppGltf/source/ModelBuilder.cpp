@@ -55,6 +55,7 @@ cgModelPtr ModelBuilder::buildModelList()
                 int accessorIndex = primitive.attributes.at ("TEXCOORD_1");
                 const Accessor& accessor = data.accessors[accessorIndex];
 
+                // FIXME 
                 getVertexFloatAttribute (model->UV, accessor);
             }
 
@@ -77,8 +78,6 @@ void ModelBuilder::getTriangleIndices (MatrixXu& matrix, const Accessor& accesso
 
     // Calculate the starting position of the index data in the binary buffer
     size_t dataStart = bufferView.byteOffset + accessor.byteOffset;
-
-    LOG (INFO) << "Triangle count: " << numTriangles;
 
     GLTFComponentType componentType = accessor.componentType;
     size_t stride = getComponentSize (componentType);

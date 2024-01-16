@@ -147,28 +147,25 @@ void GLTFParser::parseImages()
         return;
     }
 
-    const auto& images = jsonData["images"];
-    for (const auto& image : images)
+    const auto& imagesJson = jsonData["images"];
+    for (const auto& imageJson : imagesJson)
     {
-        // Parse image properties
-        if (image.contains ("uri"))
-        {
-            std::string uri = image["uri"];
-            LOG (INFO) << "Image URI: " << uri;
+        Image image; // Create an Image instance
 
-            // Handle the image URI
-            // If it's a relative path, it references an external file.
-            // If it's a data URI, it's an embedded image (usually base64 encoded).
+        if (imageJson.contains ("uri"))
+        {
+            image.uri = imageJson["uri"].get<std::string>();
+        }
+        if (imageJson.contains ("bufferView"))
+        {
+            image.bufferView = imageJson["bufferView"].get<int>();
+        }
+        if (imageJson.contains ("mimeType"))
+        {
+            image.mimeType = imageJson["mimeType"].get<std::string>();
         }
 
-        // GLTF 2.0 also allows images to reference a bufferView
-        if (image.contains ("bufferView"))
-        {
-            int bufferViewIndex = image["bufferView"];
-            LOG (INFO) << "Image uses bufferView: " << bufferViewIndex;
-
-            // Additional processing can be done here to retrieve the data from the bufferView
-        }
+        data.images.push_back (image); // Add the Image to the GLTFData's vector of Images
     }
 }
 
@@ -269,6 +266,8 @@ void GLTFParser::parseNodes()
                 matrix (i / 4, i % 4) = matrixValues[i];
 
             node.transform = Eigen::Affine3f (matrix);
+
+            mace::matStr4f (node.transform, DBUG, "T");
         }
         else
         {
@@ -471,7 +470,7 @@ void GLTFParser::parseMaterials()
                     metallicRoughnessTexture.texCoord = metallicRoughnessTextureJson["texCoord"].get<int>();
                 }
 
-                 material.pbrMetallicRoughness.metallicRoughnessTexture = metallicRoughnessTexture;
+                material.pbrMetallicRoughness.metallicRoughnessTexture = metallicRoughnessTexture;
             }
 
             // Parse metallic factor
@@ -516,5 +515,80 @@ void GLTFParser::parseTextures()
         }
 
         data.textures.push_back (texture); // Add the Texture to the GLTFData's vector of Textures
+    }
+}
+
+void GLTFParser::gltfStatistics()
+{
+    LOG (INFO) << "GLTF Data Statistics:";
+
+    // Print asset information
+    LOG (INFO) << "Asset:";
+    LOG (INFO) << "  Version: " << data.asset.version;
+    LOG (INFO) << "  Generator: " << data.asset.generator;
+
+    // Print scene information
+    LOG (INFO) << "Total scenes: " << data.scenes.size();
+    for (const auto& scene : data.scenes)
+    {
+        LOG (INFO) << "  Scene Name: " << scene.name;
+        // ... other scene details ...
+    }
+
+    // Print node information
+    LOG (INFO) << "Total nodes: " << data.nodes.size();
+    for (const auto& node : data.nodes)
+    {
+        LOG (INFO) << "  Node Name: " << node.name;
+        // ... other node details ...
+    }
+
+    // Print material information
+    LOG (INFO) << "Total materials: " << data.materials.size();
+    for (const auto& material : data.materials)
+    {
+        LOG (INFO) << "  Material Name: " << material.name;
+        // ... other material details ...
+    }
+
+    // Print texture information
+    LOG (INFO) << "Total textures: " << data.textures.size();
+    // ... similarly for textures ...
+
+    // Print sampler information
+    LOG (INFO) << "Total samplers: " << data.samplers.size();
+    // ... similarly for samplers ...
+
+    // Print image information
+    LOG (INFO) << "Total images: " << data.images.size();
+    for (const auto& image : data.images)
+    {
+        LOG (INFO) << "  Image URI: " << image.uri;
+        // ... other image details ...
+    }
+
+    // Print buffer information
+    LOG (INFO) << "Total buffers: " << data.buffers.size();
+    for (const auto& buffer : data.buffers)
+    {
+        LOG (INFO) << "  Buffer Size: " << buffer.byteLength;
+        // ... other buffer details ...
+    }
+
+    // Print bufferView information
+    LOG (INFO) << "Total bufferViews: " << data.bufferViews.size();
+    for (const auto& bufferView : data.bufferViews)
+    {
+        LOG (INFO) << "  BufferView - Buffer: " << bufferView.bufferIndex;
+        LOG (INFO) << "  Byte Length: " << bufferView.byteLength;
+        LOG (INFO) << "  Byte Offset: " << bufferView.byteOffset;
+        // ... other bufferView details ...
+    }
+
+    LOG (INFO) << "Total accessors: " << data.accessors.size();
+    for (const auto& accessor : data.accessors)
+    {
+        LOG (INFO) << "  Accessor Component Type: " << componentTypeToString (accessor.componentType);
+        // ... other accessor details ...
     }
 }

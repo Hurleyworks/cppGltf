@@ -246,7 +246,6 @@ namespace
         METALLIC_ROUGHNESS, // For metallic-roughness workflow
         OCCLUSION,          // For ambient occlusion
         EMISSIVE            // For emissive textures
-
     };
 
     struct TextureInfo
@@ -267,8 +266,6 @@ namespace
             float roughnessFactor = 1.0f;                                    // Roughness factor
 
             PBRMetallicRoughness() = default;
-
-            // Additional constructors or methods can be added as needed
         };
 
         std::string name;                            // Optional name of the material
@@ -276,6 +273,13 @@ namespace
         std::optional<TextureInfo> normalTexture;    // Optional normal map texture
         std::optional<TextureInfo> occlusionTexture; // Optional occlusion texture
         std::optional<TextureInfo> emissiveTexture;  // Optional emissive texture
+    };
+
+    struct Image
+    {
+        std::string uri;      // URI of the image resource
+        int bufferView = -1;  // Index to a bufferView (for embedded image data)
+        std::string mimeType; // MIME type of the image
     };
 
     struct Texture
@@ -349,4 +353,5 @@ struct GLTFData
     std::vector<Material> materials;
     std::vector<Texture> textures;
     std::vector<Sampler> samplers;
+    std::vector<Image> images;
 };

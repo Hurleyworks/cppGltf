@@ -9,6 +9,7 @@ class GLTFParser
     void parse();
 
     const GLTFData& getData() const { return data; }
+    void gltfStatistics();
 
  private:
     std::string filepath_;
@@ -29,4 +30,7 @@ class GLTFParser
     void parseAsset();
     void parseTextures();
     void parseSamplers();
+
+   
+
 };

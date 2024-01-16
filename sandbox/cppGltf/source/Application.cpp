@@ -21,8 +21,11 @@ class Application : public Jahley::App
             std::string triPath = resourceFolder + "/tri/tri.gltf";
             std::string cubePath = resourceFolder + "/cube/cube.gltf";
          
+            //std::string TEMP = "E:/common_content/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
+
             GLTFParser parser (cubePath);
             parser.parse();
+            parser.gltfStatistics();
             
             ModelBuilder builder (parser.getData());
             cgModelPtr cgModel = builder.createCgModel();
