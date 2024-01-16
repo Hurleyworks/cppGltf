@@ -110,6 +110,7 @@ void GLTFWriter::writeBuffers (std::ofstream& file, const std::vector<Buffer>& b
 
 void GLTFWriter::saveBufferData (const Buffer& buffer)
 {
+    #if 0
     if (buffer.uri.empty() || buffer.data.empty())
     {
         return; // Nothing to do if URI is empty or data is empty
@@ -131,6 +132,8 @@ void GLTFWriter::saveBufferData (const Buffer& buffer)
         dataFile.write (buffer.data.data(), buffer.data.size());
         dataFile.close();
     }
+
+    #endif
 }
 
 void GLTFWriter::writeMeshes (std::ofstream& file, const std::vector<Mesh>& meshes)

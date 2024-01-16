@@ -24,9 +24,13 @@ cgModelPtr ModelBuilder::buildModelList()
 
             // get the surface indices
             cgModelSurface surface;
-            const Accessor& indexAccessor = data.accessors[primitive.indices];
-            getTriangleIndices (surface.F, indexAccessor);
+            if (primitive.indices != INVALID_INDEX)
+            {
+                const Accessor& indexAccessor = data.accessors[primitive.indices];
+                getTriangleIndices (surface.F, indexAccessor);
 
+            }
+           
             // get vertex attributes
             if (primitive.attributes.find ("POSITION") != primitive.attributes.end())
             {
@@ -62,18 +66,21 @@ cgModelPtr ModelBuilder::buildModelList()
             cgModels.push_back (model);
         }
     }
-
     return cgModels.empty() ? nullptr : (cgModels.size() > 1 ? forgeIntoOne (cgModels) : cgModels[0]);
 }
 
 void ModelBuilder::getTriangleIndices (MatrixXu& matrix, const Accessor& accessor)
 {
+    if (accessor.count < 3)
+        throw std::runtime_error ("No triangle indices");
+
     size_t numTriangles = accessor.count / 3;
     matrix.resize (3, numTriangles);
 
     // Retrieve the buffer view for the accessor
     const BufferView& bufferView = data.bufferViews[accessor.bufferViewIndex];
-
+    const Buffer& buffer = data.buffers[bufferView.bufferIndex];
+   
     // Calculate the starting position of the index data in the binary buffer
     size_t dataStart = bufferView.byteOffset + accessor.byteOffset;
 
@@ -86,7 +93,7 @@ void ModelBuilder::getTriangleIndices (MatrixXu& matrix, const Accessor& accesso
         {
             case GLTFComponentType::UNSIGNED_BYTE:
             {
-                const uint8_t* indicesStart = reinterpret_cast<const uint8_t*> (&data.binaryData[dataStart + i * TRI_INDICES * stride]);
+                const uint8_t* indicesStart = reinterpret_cast<const uint8_t*> (&buffer.binaryData[dataStart + i * TRI_INDICES * stride]);
                 for (size_t j = 0; j < TRI_INDICES; ++j)
                 {
                     matrix (j, i) = static_cast<unsigned int> (indicesStart[j]);
@@ -95,7 +102,7 @@ void ModelBuilder::getTriangleIndices (MatrixXu& matrix, const Accessor& accesso
             }
             case GLTFComponentType::UNSIGNED_SHORT:
             {
-                const uint16_t* indicesStart = reinterpret_cast<const uint16_t*> (&data.binaryData[dataStart + i * TRI_INDICES * stride]);
+                const uint16_t* indicesStart = reinterpret_cast<const uint16_t*> (&buffer.binaryData[dataStart + i * TRI_INDICES * stride]);
                 for (size_t j = 0; j < TRI_INDICES; ++j)
                 {
                     matrix (j, i) = static_cast<unsigned int> (indicesStart[j]);
@@ -104,7 +111,7 @@ void ModelBuilder::getTriangleIndices (MatrixXu& matrix, const Accessor& accesso
             }
             case GLTFComponentType::UNSIGNED_INT:
             {
-                const uint32_t* indicesStart = reinterpret_cast<const uint32_t*> (&data.binaryData[dataStart + i * TRI_INDICES * stride]);
+                const uint32_t* indicesStart = reinterpret_cast<const uint32_t*> (&buffer.binaryData[dataStart + i * TRI_INDICES * stride]);
                 for (size_t j = 0; j < TRI_INDICES; ++j)
                 {
                     matrix (j, i) = indicesStart[j];
@@ -129,6 +136,7 @@ void ModelBuilder::getTriangleIndices (MatrixXu& matrix, const Accessor& accesso
 void ModelBuilder::getVertexFloatAttribute (MatrixXf& matrix, const Accessor& accessor)
 {
     const BufferView& bufferView = data.bufferViews[accessor.bufferViewIndex];
+    const Buffer& buffer = data.buffers[bufferView.bufferIndex];
 
     size_t numComponents = getNumberOfComponents (accessor.type);
     uint32_t count = accessor.count;
@@ -136,7 +144,7 @@ void ModelBuilder::getVertexFloatAttribute (MatrixXf& matrix, const Accessor& ac
     matrix.resize (numComponents, count);
 
     size_t offset = bufferView.byteOffset + accessor.byteOffset;
-    std::memcpy (matrix.data(), data.binaryData.data() + offset, count * numComponents * sizeof (float));
+    std::memcpy (matrix.data(), buffer.binaryData.data() + offset, count * numComponents * sizeof (float));
 }
 
 cgModelPtr ModelBuilder::forgeIntoOne (const ModelList& models)

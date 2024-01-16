@@ -6,7 +6,7 @@ class GLTFParser
 {
  public:
     explicit GLTFParser (const std::string& filepath);
-    void parse();
+    bool parse();
 
     const GLTFData& getData() const { return data; }
     void gltfStatistics();
@@ -14,10 +14,11 @@ class GLTFParser
  private:
     std::string filepath_;
     json jsonData;
-
+   
     GLTFData data;
 
-    void loadBinaryFile (const std::string& filename);
+    bool hasBinaryData = false;
+    bool loadBinaryFile (const std::string& filename, Buffer& buffer);
 
     void parseNodes();
     void parseMeshes();

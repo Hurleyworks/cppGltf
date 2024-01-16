@@ -4,11 +4,10 @@ local ROOT = "../"
 	language "C++"
 
 	defines{
-	 "OIIO_STATIC_DEFINE", "_USE_MATH_DEFINES"
+	 "_USE_MATH_DEFINES"
 	}
 	flags { "MultiProcessorCompile", "NoMinimalRebuild" }
 	
-
 	local CORE_DIR = ROOT .. "core/source/"
 	local JAHLEY_DIR = ROOT .. "core/source/jahley/"
 	local THIRD_PARTY_DIR = "../thirdparty/"
@@ -71,7 +70,7 @@ local ROOT = "../"
 		{ 
 			"Core",
 			"g3log",
-			"stb_image", -- for nanogui
+			"stb_image",
 		}
 		defines { "NDEBUG"}
 		optimize "On"

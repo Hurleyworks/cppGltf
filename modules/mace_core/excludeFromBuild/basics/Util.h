@@ -21,6 +21,8 @@ const LEVELS CRITICAL{WARNING.value + 1, "CRTICAL"};
 #endif
 
 
+constexpr int32_t INVALID_INDEX = -1;
+
 // from the Code Blacksmith
 // https://www.youtube.com/watch?v=GV0JMHOpoEw
 class ScopedStopWatch
@@ -88,8 +90,6 @@ class AnyValue
 
 }; // end class AnyValue
 
-
-
 inline std::string getFileNameWithoutExtension (const std::filesystem::path& filePath)
 {
     return filePath.stem().string();
@@ -155,7 +155,6 @@ inline bool pathContainsIgnoreCase (const std::filesystem::path& filePath, const
     // Reject word is not found in the path
     return false;
 }
-
 
 inline std::string readTxtFile (const std::filesystem::path& filepath)
 {

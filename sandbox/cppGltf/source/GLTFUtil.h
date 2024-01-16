@@ -188,7 +188,7 @@ namespace
 
     struct BufferView
     {
-        int bufferIndex = -1;  // Index of the buffer
+        int bufferIndex = INVALID_INDEX;  // Index of the buffer
         size_t byteOffset = 0; // Offset into the buffer in bytes
         size_t byteLength = 0; // Total length of the bufferView in bytes
         size_t byteStride = 0; // The stride, in bytes, between consecutive elements
@@ -197,7 +197,7 @@ namespace
 
     struct Accessor
     {
-        int bufferViewIndex = -1;                                   // Index of the bufferView
+        int bufferViewIndex = INVALID_INDEX;                        // Index of the bufferView
         size_t byteOffset = 0;                                      // Offset into the bufferView in bytes
         GLTFComponentType componentType = GLTFComponentType::FLOAT; // Data type of components in the accessor
         size_t count = 0;                                           // Number of elements or vertices
@@ -211,8 +211,8 @@ namespace
 
     struct MeshPrimitive
     {
-        int indices = -1;                            // Index of the accessor for indices (optional)
-        int material = -1;                           // Index of the material to use (optional)
+        int indices = INVALID_INDEX;                            // Index of the accessor for indices (optional)
+        int material = INVALID_INDEX;                           // Index of the material to use (optional)
         GLTFMeshMode mode = GLTFMeshMode::TRIANGLES; // The type of primitive to render
         std::map<std::string, int> attributes;       // A dictionary object of accessor indices for each vertex attribute
     };
@@ -229,7 +229,7 @@ namespace
         size_t byteLength = 0; // Size of the buffer in bytes
 
         // If you plan to load the buffer data directly into this struct:
-        std::vector<char> data; // The actual data of the buffer
+        std::vector<char> binaryData; // The actual data of the buffer
     };
 
     struct Asset
@@ -250,7 +250,7 @@ namespace
 
     struct TextureInfo
     {
-        int index = -1;   // Index of the texture in the textures array
+        int index = INVALID_INDEX;   // Index of the texture in the textures array
         int texCoord = 0; // Texture coordinate set to use
 
     };
@@ -278,20 +278,20 @@ namespace
     struct Image
     {
         std::string uri;      // URI of the image resource
-        int bufferView = -1;  // Index to a bufferView (for embedded image data)
+        int bufferView = INVALID_INDEX;  // Index to a bufferView (for embedded image data)
         std::string mimeType; // MIME type of the image
     };
 
     struct Texture
     {
-        int source = -1;  // Index of the image used by this texture
-        int sampler = -1; // Index of the sampler used by this texture
+        int source = INVALID_INDEX;  // Index of the image used by this texture
+        int sampler = INVALID_INDEX; // Index of the sampler used by this texture
     };
 
     struct Sampler
     {
-        int magFilter = -1; // Magnification filter
-        int minFilter = -1; // Minification filter
+        int magFilter = INVALID_INDEX; // Magnification filter
+        int minFilter = INVALID_INDEX; // Minification filter
         int wrapS = 10497;  // s-coordinate wrapping mode, default is REPEAT
         int wrapT = 10497;  // t-coordinate wrapping mode, default is REPEAT
     };
@@ -343,7 +343,7 @@ namespace
 struct GLTFData
 {
     Asset asset;
-    std::vector<char> binaryData;
+    //std::vector<char> binaryData;
     std::vector<Accessor> accessors;
     std::vector<BufferView> bufferViews;
     std::vector<Mesh> meshes;

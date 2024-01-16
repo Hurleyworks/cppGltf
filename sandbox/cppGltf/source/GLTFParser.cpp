@@ -5,13 +5,13 @@ GLTFParser::GLTFParser (const std::string& filepath) :
 {
 }
 
-void GLTFParser::parse()
+bool GLTFParser::parse()
 {
     std::ifstream file_stream (filepath_);
     if (!file_stream.is_open())
     {
         LOG (CRITICAL) << "Failed to open file: " << filepath_;
-        return;
+        return false;
     }
 
     std::stringstream buffer;
@@ -19,6 +19,12 @@ void GLTFParser::parse()
     jsonData = json::parse (buffer);
 
     parseBuffers(); // must be first
+    if (!hasBinaryData)
+    {
+        LOG (CRITICAL) << "Failed to load any binary data: " << filepath_;
+        return false;
+    }
+
     parseAsset();
     parseNodes();
     parseMeshes();
@@ -29,32 +35,41 @@ void GLTFParser::parse()
     parseImages();
     parseSamplers();
     parseScenes();
+
+    return true;
 }
 
-void GLTFParser::loadBinaryFile (const std::string& filename)
+bool GLTFParser::loadBinaryFile (const std::string& filename, Buffer& buffer)
 {
     fs::path path (filename);
     if (!std::filesystem::exists (path))
-        throw std::runtime_error ("Invalid path to gltf binary: " + filename);
+    {
+        LOG (CRITICAL) << "Invalid path to gltf binary: " << filename;
+        return false;
+    }
 
     std::ifstream file (filename, std::ios::binary | std::ios::ate);
     if (!file.is_open())
     {
-        throw std::runtime_error ("Unable to open file: " + filename);
+        LOG (CRITICAL) << "Unable to open file: " << filename;
+        return false;
     }
 
     size_t fileSize = file.tellg();
-    data.binaryData.resize (fileSize);
+    buffer.binaryData.resize (fileSize);
     file.seekg (0, std::ios::beg);
-    file.read (data.binaryData.data(), fileSize);
+    file.read (buffer.binaryData.data(), fileSize);
     file.close();
+
+    hasBinaryData = true;
+    return true;
 }
 
 void GLTFParser::parseAsset()
 {
     if (!jsonData.contains ("asset"))
     {
-        LOG (INFO) << "No accessors found in the GLTF file.";
+        // LOG (INFO) << "No accessors found in the GLTF file.";
         return;
     }
 
@@ -82,7 +97,7 @@ void GLTFParser::parseScenes()
 {
     if (!jsonData.contains ("scenes"))
     {
-        LOG (INFO) << "No scenes found in the GLTF file.";
+        // LOG (INFO) << "No scenes found in the GLTF file.";
         return;
     }
 
@@ -108,7 +123,7 @@ void GLTFParser::parseSamplers()
 {
     if (!jsonData.contains ("samplers"))
     {
-        LOG (INFO) << "No samplers found in the GLTF file.";
+        // LOG (INFO) << "No samplers found in the GLTF file.";
         return;
     }
 
@@ -143,7 +158,7 @@ void GLTFParser::parseImages()
 {
     if (!jsonData.contains ("images"))
     {
-        LOG (INFO) << "No images found in the GLTF file.";
+        // LOG (INFO) << "No images found in the GLTF file.";
         return;
     }
 
@@ -182,17 +197,22 @@ void GLTFParser::parseBuffers()
     {
         Buffer buffer;
 
+        bool successfulLoad = false;
         if (jsonBuffer.contains ("uri"))
         {
             buffer.uri = jsonBuffer["uri"];
-            loadBinaryFile (getFullPathToBinary (filepath_, buffer.uri));
+            std::string binaryPath = getFullPathToBinary (filepath_, buffer.uri);
+            fs::path path (binaryPath);
+            if (std::filesystem::exists (path))
+                successfulLoad = loadBinaryFile (binaryPath, buffer);
         }
         if (jsonBuffer.contains ("byteLength"))
         {
             buffer.byteLength = jsonBuffer["byteLength"];
         }
 
-        data.buffers.push_back (buffer);
+        if (successfulLoad)
+            data.buffers.push_back (buffer);
     }
 }
 
@@ -242,7 +262,7 @@ void GLTFParser::parseNodes()
 {
     if (!jsonData.contains ("nodes"))
     {
-        LOG (INFO) << "No nodes found in the GLTF file.";
+        // LOG (INFO) << "No nodes found in the GLTF file.";
         return;
     }
 
@@ -267,7 +287,7 @@ void GLTFParser::parseNodes()
 
             node.transform = Eigen::Affine3f (matrix);
 
-            mace::matStr4f (node.transform, DBUG, "T");
+            // mace::matStr4f (node.transform, DBUG, "T");
         }
         else
         {
@@ -347,7 +367,7 @@ void GLTFParser::parseMeshes()
 {
     if (!jsonData.contains ("meshes"))
     {
-        LOG (INFO) << "No meshes found in the GLTF file.";
+        // LOG (INFO) << "No meshes found in the GLTF file.";
         return;
     }
 
@@ -410,7 +430,7 @@ void GLTFParser::parseMaterials()
 {
     if (!jsonData.contains ("materials"))
     {
-        LOG (INFO) << "No materials found in the GLTF file.";
+        // LOG (INFO) << "No materials found in the GLTF file.";
         return;
     }
 
@@ -494,7 +514,7 @@ void GLTFParser::parseTextures()
 {
     if (!jsonData.contains ("textures"))
     {
-        LOG (INFO) << "No textures found in the GLTF file.";
+        // LOG (INFO) << "No textures found in the GLTF file.";
         return;
     }
 

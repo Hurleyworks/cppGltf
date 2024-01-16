@@ -1,13 +1,8 @@
 #pragma once
 
-// from MaterialX f
-/// A vector of strings.
 using StringVec = std::vector<std::string>;
-/// An unordered map with strings as both keys and values.
 using StringMap = std::unordered_map<std::string, std::string>;
-/// A set of strings.
 using StringSet = std::set<std::string>;
-
 
 // convert string into hex value
 template <typename T>
@@ -85,6 +80,8 @@ inline void vecStr3d (const Eigen::Vector3d& v, LEVELS level, const char functio
 
 inline void vecStr4f (const Eigen::Vector4f& v, LEVELS level, const char function[] = "unknown function")
 {
+    LOG (level) << "--- called from " << function;
+
     std::ostringstream buffer;
     buffer.setf (std::ios::fixed, std::ios::floatfield);
     buffer.precision (6);
@@ -137,5 +134,3 @@ inline void bboxStrf (const Eigen::AlignedBox3f b, LEVELS level, const char func
 
     LOG (level) << buffer.str();
 }
-
-
