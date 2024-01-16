@@ -24,9 +24,9 @@ class GLTFParser
     void parseAccessors();
     void parseBufferViews();
     void parseBuffers();
-    void parseTextures();
     void parseImages();
-    void parseSamplers();
     void parseScenes();
     void parseAsset();
+    void parseTextures();
+    void parseSamplers();
 };

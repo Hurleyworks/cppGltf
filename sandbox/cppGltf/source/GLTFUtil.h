@@ -251,12 +251,9 @@ namespace
 
     struct TextureInfo
     {
-        std::string textureId; // Identifier for the texture
-        size_t texCoord = 0U;  // Texture coordinate set index (default is 0)
+        int index = -1;   // Index of the texture in the textures array
+        int texCoord = 0; // Texture coordinate set to use
 
-        // Constructor with parameters
-        TextureInfo (const std::string& id, size_t coord = 0U) :
-            textureId (id), texCoord (coord) {}
     };
 
     struct Material
@@ -283,8 +280,16 @@ namespace
 
     struct Texture
     {
-        int imageIndex = -1;             // Index of the image used by this texture
-        std::optional<int> samplerIndex; // Optional index of the sampler used by this texture
+        int source = -1;  // Index of the image used by this texture
+        int sampler = -1; // Index of the sampler used by this texture
+    };
+
+    struct Sampler
+    {
+        int magFilter = -1; // Magnification filter
+        int minFilter = -1; // Minification filter
+        int wrapS = 10497;  // s-coordinate wrapping mode, default is REPEAT
+        int wrapT = 10497;  // t-coordinate wrapping mode, default is REPEAT
     };
 
     struct Scene
@@ -339,4 +344,9 @@ struct GLTFData
     std::vector<BufferView> bufferViews;
     std::vector<Mesh> meshes;
     std::vector<Buffer> buffers;
+    std::vector<Scene> scenes;
+    std::vector<Node> nodes;
+    std::vector<Material> materials;
+    std::vector<Texture> textures;
+    std::vector<Sampler> samplers;
 };

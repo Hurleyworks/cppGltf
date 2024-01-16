@@ -86,23 +86,21 @@ void GLTFParser::parseScenes()
         return;
     }
 
-    const auto& scenes = jsonData["scenes"];
-    for (const auto& scene : scenes)
+    const auto& scenesJson = jsonData["scenes"];
+    for (const auto& sceneJson : scenesJson)
     {
-        // Parse scene properties
-        if (scene.contains ("name"))
+        Scene scene; // Simplified and clear variable name
+        if (sceneJson.contains ("name"))
         {
-            LOG (INFO) << "Scene name: " << scene["name"];
+            scene.name = sceneJson["name"].get<std::string>();
         }
-        if (scene.contains ("nodes"))
+
+        if (sceneJson.contains ("nodes"))
         {
-            LOG (INFO) << "Scene nodes:";
-            const auto& nodes = scene["nodes"];
-            for (const auto& node : nodes)
-            {
-                LOG (INFO) << " Node index: " << node;
-            }
+            scene.nodeIndices = sceneJson["nodes"].get<std::vector<int>>();
         }
+
+        data.scenes.push_back (scene);
     }
 }
 
@@ -114,26 +112,30 @@ void GLTFParser::parseSamplers()
         return;
     }
 
-    const auto& samplers = jsonData["samplers"];
-    for (const auto& sampler : samplers)
+    const auto& samplersJson = jsonData["samplers"];
+    for (const auto& samplerJson : samplersJson)
     {
+        Sampler sampler; // Create a Sampler instance
+
         // Parse sampler properties
-        if (sampler.contains ("magFilter"))
+        if (samplerJson.contains ("magFilter"))
         {
-            LOG (INFO) << "Sampler magFilter: " << sampler["magFilter"];
+            sampler.magFilter = samplerJson["magFilter"].get<int>();
         }
-        if (sampler.contains ("minFilter"))
+        if (samplerJson.contains ("minFilter"))
         {
-            LOG (INFO) << "Sampler minFilter: " << sampler["minFilter"];
+            sampler.minFilter = samplerJson["minFilter"].get<int>();
         }
-        if (sampler.contains ("wrapS"))
+        if (samplerJson.contains ("wrapS"))
         {
-            LOG (INFO) << "Sampler wrapS: " << sampler["wrapS"];
+            sampler.wrapS = samplerJson["wrapS"].get<int>();
         }
-        if (sampler.contains ("wrapT"))
+        if (samplerJson.contains ("wrapT"))
         {
-            LOG (INFO) << "Sampler wrapT: " << sampler["wrapT"];
+            sampler.wrapT = samplerJson["wrapT"].get<int>();
         }
+
+        data.samplers.push_back (sampler); // Add the Sampler to the GLTFData's vector of Samplers
     }
 }
 
@@ -197,29 +199,6 @@ void GLTFParser::parseBuffers()
     }
 }
 
-void GLTFParser::parseTextures()
-{
-    if (!jsonData.contains ("textures"))
-    {
-        LOG (INFO) << "No textures found in the GLTF file.";
-        return;
-    }
-
-    const auto& textures = jsonData["textures"];
-    for (const auto& texture : textures)
-    {
-        // Parse texture properties
-        if (texture.contains ("sampler"))
-        {
-            LOG (INFO) << "Texture uses sampler: " << texture["sampler"];
-        }
-        if (texture.contains ("source"))
-        {
-            LOG (INFO) << "Texture image source: " << texture["source"];
-        }
-    }
-}
-
 void GLTFParser::parseAccessors()
 {
     if (!jsonData.contains ("accessors"))
@@ -270,63 +249,61 @@ void GLTFParser::parseNodes()
         return;
     }
 
-    const auto& nodes = jsonData["nodes"];
-    for (const auto& node : nodes)
+    const auto& nodesJson = jsonData["nodes"];
+    for (const auto& nodeJson : nodesJson)
     {
-        // Example of parsing a node's name, if it exists
-        if (node.contains ("name"))
+        Node node; // Create a Node instance
+
+        // Parse and set node name
+        if (nodeJson.contains ("name"))
         {
-            std::string nodeName = node["name"];
-            LOG (INFO) << "Node name: " << nodeName;
+            node.name = nodeJson["name"].get<std::string>();
         }
 
-        // Parse transformation data (position, rotation, scale)
-        if (node.contains ("translation"))
+        // Directly parse matrix if it exists
+        if (nodeJson.contains ("matrix"))
         {
-            auto translation = node["translation"];
-            LOG (INFO) << "Translation: X=" << translation[0] << ", Y=" << translation[1] << ", Z=" << translation[2];
-        }
+            std::vector<float> matrixValues = nodeJson["matrix"].get<std::vector<float>>();
+            Eigen::Matrix4f matrix;
+            for (int i = 0; i < 16; ++i)
+                matrix (i / 4, i % 4) = matrixValues[i];
 
-        if (node.contains ("rotation"))
-        {
-            auto rotation = node["rotation"];
-            LOG (INFO) << "Rotation: X=" << rotation[0] << ", Y=" << rotation[1] << ", Z=" << rotation[2] << ", W=" << rotation[3];
+            node.transform = Eigen::Affine3f (matrix);
         }
-
-        if (node.contains ("scale"))
+        else
         {
-            auto scale = node["scale"];
-            LOG (INFO) << "Scale: X=" << scale[0] << ", Y=" << scale[1] << ", Z=" << scale[2];
-        }
-
-        // Parse matrix (if it exists)
-        if (node.contains ("matrix"))
-        {
-            LOG (INFO) << "Node matrix:";
-            const auto& matrix = node["matrix"];
-            for (int i = 0; i < matrix.size(); ++i)
+            // Parse and set node transform components
+            if (nodeJson.contains ("translation"))
             {
-                LOG (INFO) << " " << matrix[i] << ((i % 4 == 3) ? "\n" : "");
+                std::vector<float> translation = nodeJson["translation"].get<std::vector<float>>();
+                node.translation = Eigen::Vector3f (translation[0], translation[1], translation[2]);
             }
-        }
-
-        // Parse children (if they exist)
-        if (node.contains ("children"))
-        {
-            LOG (INFO) << "Node has children:";
-            const auto& children = node["children"];
-            for (const auto& child : children)
+            if (nodeJson.contains ("rotation"))
             {
-                LOG (INFO) << " Child node index: " << child;
+                std::vector<float> rotation = nodeJson["rotation"].get<std::vector<float>>();
+                node.rotation = Eigen::Quaternionf (rotation[3], rotation[0], rotation[1], rotation[2]);
             }
+            if (nodeJson.contains ("scale"))
+            {
+                std::vector<float> scale = nodeJson["scale"].get<std::vector<float>>();
+                node.scale = Eigen::Vector3f (scale[0], scale[1], scale[2]);
+            }
+            node.updateTransform();
         }
 
-        // Parse references to other objects like meshes
-        if (node.contains ("mesh"))
+        // Parse and set node mesh
+        if (nodeJson.contains ("mesh"))
         {
-            int meshIndex = node["mesh"];
-            LOG (INFO) << "Node references mesh index: " << meshIndex;
+            node.mesh = nodeJson["mesh"].get<int>();
         }
+
+        // Parse and set child nodes
+        if (nodeJson.contains ("children"))
+        {
+            node.children = nodeJson["children"].get<std::vector<int>>();
+        }
+
+        data.nodes.push_back (node); // Add the Node to the GLTFData's vector of Nodes
     }
 }
 
@@ -429,6 +406,7 @@ void GLTFParser::parseMeshes()
         data.meshes.push_back (mesh);
     }
 }
+
 void GLTFParser::parseMaterials()
 {
     if (!jsonData.contains ("materials"))
@@ -437,37 +415,106 @@ void GLTFParser::parseMaterials()
         return;
     }
 
-    const auto& materials = jsonData["materials"];
-    for (const auto& material : materials)
+    const auto& materialsJson = jsonData["materials"];
+    for (const auto& materialJson : materialsJson)
     {
-        // Parse material name, if it exists
-        if (material.contains ("name"))
+        Material material; // Create a Material instance
+
+        // Parse and set material name
+        if (materialJson.contains ("name"))
         {
-            std::string materialName = material["name"];
-            LOG (INFO) << "Material name: " << materialName;
+            material.name = materialJson["name"].get<std::string>();
         }
 
-        // Parse the PBR (Physically-Based Rendering) metallic-roughness properties
-        if (material.contains ("pbrMetallicRoughness"))
+        // Parse PBRMetallicRoughness properties
+        if (materialJson.contains ("pbrMetallicRoughness"))
         {
-            const auto& pbr = material["pbrMetallicRoughness"];
+            auto& pbrJson = materialJson["pbrMetallicRoughness"];
 
-            // Base color
-            if (pbr.contains ("baseColorFactor"))
+            if (pbrJson.contains ("baseColorTexture"))
             {
-                const auto& color = pbr["baseColorFactor"];
-                LOG (INFO) << "Base color factor: R=" << color[0] << ", G=" << color[1] << ", B=" << color[2] << ", A=" << color[3];
+                TextureInfo baseColorTexture;
+
+                auto& baseColorTextureJson = pbrJson["baseColorTexture"];
+                if (baseColorTextureJson.contains ("index"))
+                {
+                    baseColorTexture.index = baseColorTextureJson["index"].get<int>();
+                }
+
+                if (baseColorTextureJson.contains ("texCoord"))
+                {
+                    baseColorTexture.texCoord = baseColorTextureJson["texCoord"].get<int>();
+                }
+
+                material.pbrMetallicRoughness.baseColorTexture = baseColorTexture;
             }
 
-            // Metallic and roughness factors
-            if (pbr.contains ("metallicFactor"))
+            // Parse base color factor
+            if (pbrJson.contains ("baseColorFactor"))
             {
-                LOG (INFO) << "Metallic factor: " << pbr["metallicFactor"];
+                std::vector<float> factor = pbrJson["baseColorFactor"].get<std::vector<float>>();
+                std::copy (factor.begin(), factor.end(), material.pbrMetallicRoughness.baseColorFactor.begin());
             }
-            if (pbr.contains ("roughnessFactor"))
+
+            // Parse metallic-roughness texture
+            if (pbrJson.contains ("metallicRoughnessTexture"))
             {
-                LOG (INFO) << "Roughness factor: " << pbr["roughnessFactor"];
+                TextureInfo metallicRoughnessTexture;
+                auto& metallicRoughnessTextureJson = pbrJson["metallicRoughnessTexture"];
+                if (metallicRoughnessTextureJson.contains ("index"))
+                {
+                    metallicRoughnessTexture.index = metallicRoughnessTextureJson["index"].get<int>();
+                }
+
+                if (metallicRoughnessTextureJson.contains ("texCoord"))
+                {
+                    metallicRoughnessTexture.texCoord = metallicRoughnessTextureJson["texCoord"].get<int>();
+                }
+
+                 material.pbrMetallicRoughness.metallicRoughnessTexture = metallicRoughnessTexture;
+            }
+
+            // Parse metallic factor
+            if (pbrJson.contains ("metallicFactor"))
+            {
+                material.pbrMetallicRoughness.metallicFactor = pbrJson["metallicFactor"].get<float>();
+            }
+
+            // Parse roughness factor
+            if (pbrJson.contains ("roughnessFactor"))
+            {
+                material.pbrMetallicRoughness.roughnessFactor = pbrJson["roughnessFactor"].get<float>();
             }
         }
+
+        data.materials.push_back (material); // Add the Material to the GLTFData's vector of Materials
+    }
+}
+
+void GLTFParser::parseTextures()
+{
+    if (!jsonData.contains ("textures"))
+    {
+        LOG (INFO) << "No textures found in the GLTF file.";
+        return;
+    }
+
+    const auto& texturesJson = jsonData["textures"];
+    for (const auto& textureJson : texturesJson)
+    {
+        Texture texture; // Create a Texture instance
+
+        // Parse texture properties
+        if (textureJson.contains ("source"))
+        {
+            texture.source = textureJson["source"].get<int>();
+        }
+
+        if (textureJson.contains ("sampler"))
+        {
+            texture.sampler = textureJson["sampler"].get<int>();
+        }
+
+        data.textures.push_back (texture); // Add the Texture to the GLTFData's vector of Textures
     }
 }
