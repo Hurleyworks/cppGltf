@@ -30,7 +30,4 @@ class GLTFParser
     void parseAsset();
     void parseTextures();
     void parseSamplers();
-
-   
-
 };

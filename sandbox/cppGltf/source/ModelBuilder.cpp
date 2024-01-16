@@ -126,7 +126,7 @@ void ModelBuilder::getTriangleIndices (MatrixXu& matrix, const Accessor& accesso
 #endif
 }
 
-void ModelBuilder::getVertexFloatAttribute (Eigen::MatrixXf& matrix, const Accessor& accessor)
+void ModelBuilder::getVertexFloatAttribute (MatrixXf& matrix, const Accessor& accessor)
 {
     const BufferView& bufferView = data.bufferViews[accessor.bufferViewIndex];
 
@@ -185,6 +185,8 @@ cgModelPtr ModelBuilder::forgeIntoOne (const ModelList& models)
         // some meshes don't have UV data
         if (mesh->UV0.cols())
             std::memcpy (flattenedModel->UV0.data() + vertexOffsets[index] * 2, mesh->UV0.data(), mesh->vertexCount() * 2 * sizeof (float));
+
+        // FIXME what about UV1?
     }
 
     // Update triangle indices in the flattened mesh with new vertex offsets.

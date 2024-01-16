@@ -22,5 +22,5 @@ class ModelBuilder
     cgModelPtr forgeIntoOne (const ModelList& models);
 
     void getTriangleIndices (MatrixXu& matrix, const Accessor& accessor);
-    void getVertexFloatAttribute (Eigen::MatrixXf& matrix, const Accessor& accessor);
+    void getVertexFloatAttribute (MatrixXf& matrix, const Accessor& accessor);
 };
