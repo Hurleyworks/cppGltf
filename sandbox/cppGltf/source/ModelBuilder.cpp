@@ -10,6 +10,13 @@ cgModelPtr ModelBuilder::createCgModel()
     return buildModelList();
 }
 
+const GLTFData& ModelBuilder::convertToGLTF (cgModelPtr model)
+{
+    GLTFData data;
+
+   return data;
+}
+
 cgModelPtr ModelBuilder::buildModelList()
 {
     ModelList cgModels;

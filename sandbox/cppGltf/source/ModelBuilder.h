@@ -14,6 +14,7 @@ class ModelBuilder
     }
 
     cgModelPtr createCgModel();
+   const GLTFData& convertToGLTF (cgModelPtr model);
 
  private:
     const GLTFData& data;

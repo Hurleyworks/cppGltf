@@ -25,5 +25,5 @@ end
 -- add projects
 include "g3log"
 include "stb_image"
-
+include "binarytools"
 

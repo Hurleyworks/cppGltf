@@ -23,6 +23,7 @@ local ROOT = "../"
 		THIRD_PARTY_DIR .. "g3log/src",
 		THIRD_PARTY_DIR .. "json",
 		THIRD_PARTY_DIR .. "stb_image",
+		THIRD_PARTY_DIR .. "binarytools/src",
 	}
 	
 	targetdir (ROOT .. "builds/bin/" .. outputdir .. "/%{prj.name}")
@@ -54,6 +55,7 @@ local ROOT = "../"
 			"Core",
 			"g3log",
 			"stb_image",
+			"binarytools",
 		}
 		defines { "DEBUG", "USE_DEBUG_EXCEPTIONS" }
 		symbols "On"
@@ -71,6 +73,7 @@ local ROOT = "../"
 			"Core",
 			"g3log",
 			"stb_image",
+			"binarytools",
 		}
 		defines { "NDEBUG"}
 		optimize "On"
