@@ -369,7 +369,7 @@ namespace
 struct GLTFData
 {
     Asset asset;
-    // std::vector<char> binaryData;
+    
     std::vector<Accessor> accessors;
     std::vector<BufferView> bufferViews;
     std::vector<Mesh> meshes;

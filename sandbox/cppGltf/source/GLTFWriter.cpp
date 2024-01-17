@@ -16,11 +16,6 @@ void GLTFWriter::write (const std::string& filepath, const GLTFData&& data)
 
     file << "{\n";
 
-    writeAsset (file, data.asset);
-
-    if (data.scenes.size())
-        writeScenes (file, data.scenes);
-
     if (data.accessors.size())
         writeAccessors (file, data.accessors);
 
@@ -33,12 +28,6 @@ void GLTFWriter::write (const std::string& filepath, const GLTFData&& data)
     if (data.materials.size())
         writeMaterials (file, data.materials);
 
-    if (data.meshes.size())
-        writeMeshes (file, data.meshes);
-
-    if (data.nodes.size())
-        writeNodes (file, data.nodes);
-
     if (data.images.size())
         writeImages (file, data.images);
 
@@ -47,6 +36,18 @@ void GLTFWriter::write (const std::string& filepath, const GLTFData&& data)
 
     if (data.samplers.size())
         writeSamplers (file, data.samplers);
+
+    if (data.scenes.size())
+        writeScenes (file, data.scenes);
+
+    if (data.nodes.size())
+        writeNodes (file, data.nodes);
+
+    if (data.meshes.size())
+        writeMeshes (file, data.meshes);
+
+    // last has no comma
+    writeAsset (file, data.asset);
 
     file << "\n}";
     file.close();
@@ -212,7 +213,7 @@ void GLTFWriter::writeAsset (std::ofstream& file, const Asset& asset)
         assetJson["minVersion"] = asset.minVersion;
     }
 
-    file << "\"asset\": " << assetJson.dump (4) << ","
+    file << "\"asset\": " << assetJson.dump (4)
          << "\n";
 }
 

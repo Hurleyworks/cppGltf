@@ -253,6 +253,23 @@ void GLTFParser::parseAccessors()
         {
             accessor.normalized = jsonAccessor["normalized"];
         }
+        if (jsonAccessor.contains ("min"))
+        {
+            const auto& minArray = jsonAccessor["min"];
+            for (const auto& val : minArray)
+            {
+                accessor.minValues.push_back (val.get<float>());
+            }
+        }
+
+        if (jsonAccessor.contains ("max"))
+        {
+            const auto& maxArray = jsonAccessor["max"];
+            for (const auto& val : maxArray)
+            {
+                accessor.maxValues.push_back (val.get<float>());
+            }
+        }
 
         data.accessors.push_back (accessor);
     }
