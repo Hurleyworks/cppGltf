@@ -123,7 +123,7 @@ void GLTFWriter::writeBuffers (std::ofstream& file, const std::vector<Buffer>& b
 
         json bufferJson;
         bufferJson["byteLength"] = buffer.byteLength;
-        bufferJson["uri"] = buffer.uri; // Assuming URI is already set correctly
+        bufferJson["uri"] = buffer.uri; 
         j["buffers"].push_back (bufferJson);
     }
 
@@ -213,6 +213,7 @@ void GLTFWriter::writeAsset (std::ofstream& file, const Asset& asset)
         assetJson["minVersion"] = asset.minVersion;
     }
 
+    // no comma here since we make this the last write 
     file << "\"asset\": " << assetJson.dump (4)
          << "\n";
 }

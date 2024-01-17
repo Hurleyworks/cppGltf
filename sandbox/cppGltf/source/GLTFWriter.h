@@ -6,7 +6,8 @@ class GLTFWriter
 {
  public:
     GLTFWriter() = default;
-    
+    ~GLTFWriter() = default;
+
     void write (const std::string& filepath, const GLTFData&& data);
    
  private:

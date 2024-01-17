@@ -22,8 +22,6 @@ void processPath (const std::filesystem::path& p)
     }
     else
     {
-        std::string fileExtension = p.extension().string();
-
         bool validPath = true;
 
         // Check if the extension is .gltf or .GLTF
