@@ -68,7 +68,7 @@ class Application : public Jahley::App
             std::string triPath = resourceFolder + "/tri/tri.gltf";
             std::string cubePath = resourceFolder + "/cube/cube.gltf";
 
-            GLTFParser parser (triPath);
+            GLTFParser parser (cubePath);
             parser.parse();
             parser.gltfStatistics();
 
@@ -77,8 +77,9 @@ class Application : public Jahley::App
 
             std::string outTriPath = resourceFolder + "/outTri/tri.gltf";
             std::string outCubePath = resourceFolder + "/outCube/cube.gltf";
+            
             GLTFWriter writer;
-            writer.write (outTriPath, std::move (parser.getData()));
+            writer.write (outCubePath, std::move (parser.getData()));
 
 #if 0
             // you can download the 2.0 sample models
