@@ -68,13 +68,19 @@ class Application : public Jahley::App
             std::string triPath = resourceFolder + "/tri/tri.gltf";
             std::string cubePath = resourceFolder + "/cube/cube.gltf";
 
-            GLTFParser parser (cubePath);
+            GLTFParser parser (triPath);
             parser.parse();
             parser.gltfStatistics();
 
             ModelBuilder builder (parser.getData());
             cgModelPtr cgModel = builder.createCgModel();
 
+            std::string outTriPath = resourceFolder + "/outTri/tri.gltf";
+            std::string outCubePath = resourceFolder + "/outCube/cube.gltf";
+            GLTFWriter writer;
+            writer.write (outTriPath, std::move (parser.getData()));
+
+#if 0
             // you can download the 2.0 sample models
             // https://github.com/KhronosGroup/glTF-Sample-Models
 
@@ -114,6 +120,7 @@ class Application : public Jahley::App
             pool.wait();
 
             LOG (DBUG) << "read " << modelPaths.size() << " gltf files";
+#endif
         }
         catch (std::exception& e)
         {

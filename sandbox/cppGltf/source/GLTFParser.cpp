@@ -457,7 +457,7 @@ void GLTFParser::parseMaterials()
                 auto& baseColorTextureJson = pbrJson["baseColorTexture"];
                 if (baseColorTextureJson.contains ("index"))
                 {
-                    baseColorTexture.index = baseColorTextureJson["index"].get<int>();
+                    baseColorTexture.textureIndex = baseColorTextureJson["index"].get<int>();
                 }
 
                 if (baseColorTextureJson.contains ("texCoord"))
@@ -482,7 +482,7 @@ void GLTFParser::parseMaterials()
                 auto& metallicRoughnessTextureJson = pbrJson["metallicRoughnessTexture"];
                 if (metallicRoughnessTextureJson.contains ("index"))
                 {
-                    metallicRoughnessTexture.index = metallicRoughnessTextureJson["index"].get<int>();
+                    metallicRoughnessTexture.textureIndex = metallicRoughnessTextureJson["index"].get<int>();
                 }
 
                 if (metallicRoughnessTextureJson.contains ("texCoord"))

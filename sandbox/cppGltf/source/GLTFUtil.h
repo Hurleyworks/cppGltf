@@ -188,11 +188,11 @@ namespace
 
     struct BufferView
     {
-        int bufferIndex = INVALID_INDEX;  // Index of the buffer
-        size_t byteOffset = 0; // Offset into the buffer in bytes
-        size_t byteLength = 0; // Total length of the bufferView in bytes
-        size_t byteStride = 0; // The stride, in bytes, between consecutive elements
-        int target = 0;        // The target that the GPU buffer should be bound to
+        int bufferIndex = INVALID_INDEX; // Index of the buffer
+        size_t byteOffset = 0;           // Offset into the buffer in bytes
+        size_t byteLength = 0;           // Total length of the bufferView in bytes
+        size_t byteStride = 0;           // The stride, in bytes, between consecutive elements
+        int target = 0;                  // The target that the GPU buffer should be bound to
     };
 
     struct Accessor
@@ -211,8 +211,8 @@ namespace
 
     struct MeshPrimitive
     {
-        int indices = INVALID_INDEX;                            // Index of the accessor for indices (optional)
-        int material = INVALID_INDEX;                           // Index of the material to use (optional)
+        int indices = INVALID_INDEX;                 // Index of the accessor for indices (optional)
+        int material = INVALID_INDEX;                // Index of the material to use (optional)
         GLTFMeshMode mode = GLTFMeshMode::TRIANGLES; // The type of primitive to render
         std::map<std::string, int> attributes;       // A dictionary object of accessor indices for each vertex attribute
     };
@@ -250,9 +250,8 @@ namespace
 
     struct TextureInfo
     {
-        int index = INVALID_INDEX;   // Index of the texture in the textures array
-        int texCoord = 0; // Texture coordinate set to use
-
+        int textureIndex = INVALID_INDEX; // Index of the texture in the textures array
+        int texCoord = 0;          // Texture coordinate set to use
     };
 
     struct Material
@@ -277,9 +276,9 @@ namespace
 
     struct Image
     {
-        std::string uri;      // URI of the image resource
-        int bufferView = INVALID_INDEX;  // Index to a bufferView (for embedded image data)
-        std::string mimeType; // MIME type of the image
+        std::string uri;                // URI of the image resource
+        int bufferView = INVALID_INDEX; // Index to a bufferView (for embedded image data)
+        std::string mimeType;           // MIME type of the image
     };
 
     struct Texture
@@ -292,8 +291,8 @@ namespace
     {
         int magFilter = INVALID_INDEX; // Magnification filter
         int minFilter = INVALID_INDEX; // Minification filter
-        int wrapS = 10497;  // s-coordinate wrapping mode, default is REPEAT
-        int wrapT = 10497;  // t-coordinate wrapping mode, default is REPEAT
+        int wrapS = 10497;             // s-coordinate wrapping mode, default is REPEAT
+        int wrapT = 10497;             // t-coordinate wrapping mode, default is REPEAT
     };
 
     struct Scene
@@ -310,6 +309,7 @@ namespace
         Eigen::Quaternionf rotation = Eigen::Quaternionf::Identity(); // Rotation
         Eigen::Vector3f scale = Eigen::Vector3f::Ones();              // Scale
 
+        std::optional<int> camera; // Optional index of the camera in this node
         std::optional<int> mesh;   // Optional index of the mesh in this node
         std::vector<int> children; // Indices of child nodes
 
@@ -338,12 +338,38 @@ namespace
         return fullPath.string();
     }
 
+    std::string convertToBinPath (const std::string& gltfPath)
+    {
+        std::string binPath = gltfPath;
+        size_t pos = binPath.rfind (".gltf");
+
+        // Check if '.gltf' is found in the string
+        if (pos != std::string::npos)
+        {
+            // Replace '.gltf' with '.bin'
+            binPath.replace (pos, 5, ".bin");
+        }
+
+        return binPath;
+    }
+
+    std::string convertToCustomBinPath (const std::string& gltfPath, const std::string& binNameIncludingExtension)
+    {
+        // Create a path object from the original file path
+        std::filesystem::path pathObj (gltfPath);
+
+        // Replace the filename in the path object with the new binName
+        pathObj.replace_filename (binNameIncludingExtension);
+
+        return pathObj.string();
+    }
+
 } // namespace
 
 struct GLTFData
 {
     Asset asset;
-    //std::vector<char> binaryData;
+    // std::vector<char> binaryData;
     std::vector<Accessor> accessors;
     std::vector<BufferView> bufferViews;
     std::vector<Mesh> meshes;
