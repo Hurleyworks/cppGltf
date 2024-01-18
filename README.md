@@ -14,3 +14,4 @@ Visual Studio Community 2022
 7. click on the 'generateVS2022.bat' file
 8. enter the newly created 'builds' folder
 9. enter the 'VisualStudio2022' folder and open the 'cppGltf.sln' and build the solution
+
