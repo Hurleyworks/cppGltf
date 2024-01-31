@@ -173,7 +173,7 @@ void GLTFParser::parseImages()
         }
         if (imageJson.contains ("bufferView"))
         {
-            image.bufferView = imageJson["bufferView"].get<int>();
+            image.bufferViewIndex = imageJson["bufferView"].get<int>();
         }
         if (imageJson.contains ("mimeType"))
         {
@@ -299,21 +299,21 @@ void GLTFParser::parseNodes()
         {
             std::vector<float> matrixValues = nodeJson["matrix"].get<std::vector<float>>();
             Eigen::Matrix4f matrix;
-            for (int i = 0; i < 16; ++i)
-                matrix (i / 4, i % 4) = matrixValues[i];
-
+            std::memcpy (matrix.data(), matrixValues.data(), 16 * sizeof (float));
+         
             node.transform = Eigen::Affine3f (matrix);
 
-            // mace::matStr4f (node.transform, DBUG, "T");
+            node.isMatrixMode = true;
         }
         else
         {
-            // Parse and set node transform components
             if (nodeJson.contains ("translation"))
             {
+                node.isMatrixMode = false;
                 std::vector<float> translation = nodeJson["translation"].get<std::vector<float>>();
                 node.translation = Eigen::Vector3f (translation[0], translation[1], translation[2]);
             }
+
             if (nodeJson.contains ("rotation"))
             {
                 std::vector<float> rotation = nodeJson["rotation"].get<std::vector<float>>();
@@ -324,6 +324,8 @@ void GLTFParser::parseNodes()
                 std::vector<float> scale = nodeJson["scale"].get<std::vector<float>>();
                 node.scale = Eigen::Vector3f (scale[0], scale[1], scale[2]);
             }
+
+            node.isMatrixMode = false;
             node.updateTransform();
         }
 

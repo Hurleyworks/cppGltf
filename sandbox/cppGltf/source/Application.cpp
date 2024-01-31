@@ -2,7 +2,8 @@
 #include <BSthread/BS_thread_pool.hpp>
 #include "GLTFParser.h"
 #include "GLTFWriter.h"
-#include "ModelBuilder.h"
+#include "GltfBuilder.h"
+#include "CgModelBuilder.h"
 
 const std::string APP_NAME = "cppGltf";
 
@@ -63,21 +64,28 @@ class Application : public Jahley::App
             std::string resourceFolder = getResourcePath (APP_NAME);
             LOG (INFO) << resourceFolder;
 
-            std::string triPath = resourceFolder + "/tri/tri.gltf";
             std::string cubePath = resourceFolder + "/cube/cube.gltf";
 
+            // get the GLTFData from a gltf file
             GLTFParser parser (cubePath);
             parser.parse();
             parser.gltfStatistics();
 
-            ModelBuilder builder (parser.getData());
-            cgModelPtr cgModel = builder.createCgModel();
+            // build a CgModel from the GLTFData
+            CgModelBuilder builder (parser.getData());
+            CgModelPtr cgModel = builder.createCgModel();
 
-            std::string outTriPath = resourceFolder + "/outTri/tri.gltf";
             std::string outCubePath = resourceFolder + "/outCube/cube.gltf";
-            
+            std::string cubeBinaryPath = resourceFolder + "/outCube/cube.bin";
+
+            // build GLTFData from a CgModel
+            GLTFData data;
+            GltfBuilder gltfBuilder;
+            gltfBuilder.convertCgModelToGltfData (cgModel, data, cubeBinaryPath);
+
+            // write a gltf file from the GLTFData
             GLTFWriter writer;
-            writer.write (outCubePath, std::move (parser.getData()));
+            writer.write (outCubePath, std::move (data));
 
 #if 0
             // you can download the 2.0 sample models

@@ -95,11 +95,11 @@ void GLTFWriter::writeBufferViews (std::ofstream& file, const std::vector<Buffer
         bufferViewJson["byteOffset"] = bufferView.byteOffset;
         bufferViewJson["byteLength"] = bufferView.byteLength;
 
-        // Only add byteStride if it's not zero
-        if (bufferView.byteStride > 0)
-        {
-            bufferViewJson["byteStride"] = bufferView.byteStride;
-        }
+        ////
+        //if (bufferView.byteStride > 0)
+        //{
+        //    bufferViewJson["byteStride"] = bufferView.byteStride;
+        //}
 
         // Only add target if it's not zero
         if (bufferView.target > 0)
@@ -441,9 +441,9 @@ void GLTFWriter::writeImages (std::ofstream& file, const std::vector<Image>& ima
         }
 
         // BufferView index
-        if (image.bufferView != INVALID_INDEX)
+        if (image.bufferViewIndex != INVALID_INDEX)
         {
-            imageJson["bufferView"] = image.bufferView;
+            imageJson["bufferView"] = image.bufferViewIndex;
         }
 
         // MIME type

@@ -1,21 +1,24 @@
 #pragma once
 
-#include "cgModelSurface.h"
+#include "CgModelSurface.h"
 
-using cgModelPtr = std::shared_ptr<struct cgModel>;
+using CgModelPtr = std::shared_ptr<struct CgModel>;
 
-struct cgModel
+struct CgModel
 {
-    static cgModelPtr create() { return std::make_shared<cgModel>(); }
+    static CgModelPtr create() { return std::make_shared<CgModel>(); }
 
-    MatrixXf V;  // vertices
-    MatrixXf N;  // vertex normals
-    MatrixXf FN; // face normals
+    MatrixXf V;   // vertices
+    MatrixXf N;   // vertex normals
+    MatrixXf FN;  // face normals
     MatrixXf UV0; // uv0
     MatrixXf UV1; // uv1
 
     // list of Surfaces
-    std::vector<cgModelSurface> S;
+    std::vector<CgModelSurface> S;
+    std::vector<Texture> textures;
+    std::vector<Image> images;
+    std::vector<Sampler> samplers;
 
     size_t triCount = 0; // must be computed
     size_t vertexCount() const { return V.cols(); }
@@ -42,9 +45,12 @@ struct cgModel
 
     bool isValid()
     {
-        // must have at least 1 triangle and
-        // the vertex and normals counts must match
-        return V.cols() == N.cols() && triangleCount() > 0;
+        if (V.cols() < 3) return false;
+        if (N.cols() > 0 && V.cols() != N.cols()) return false;
+        if (triangleCount() == 0) return false;
+        if (S.size() == 0) return false;
+
+        return true;
     }
 
     void transformVertices (const Eigen::Affine3f& t)

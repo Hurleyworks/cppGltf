@@ -234,9 +234,9 @@ namespace
 
     struct Asset
     {
-        std::string version;    // Required - the version of the GLTF specification
-        std::string generator;  // Optional - the tool that generated the GLTF file
-        std::string minVersion; // Optional - the minimum GLTF version that this file is compatible with
+        std::string version = "2.0"; // Required - the version of the GLTF specification
+        std::string generator;       // Optional - the tool that generated the GLTF file
+        std::string minVersion;      // Optional - the minimum GLTF version that this file is compatible with
     };
 
     enum class TextureType
@@ -248,10 +248,31 @@ namespace
         EMISSIVE            // For emissive textures
     };
 
+    struct Image
+    {
+        std::string uri;                     // URI of the image resource
+        int bufferViewIndex = INVALID_INDEX; // Index to a bufferView (for embedded image data)
+        std::string mimeType;                // MIME type of the image
+    };
+
+    struct Texture
+    {
+        int source = INVALID_INDEX;  // Index of the image used by this texture
+        int sampler = INVALID_INDEX; // Index of the sampler used by this texture
+    };
+
+    struct Sampler
+    {
+        int magFilter = INVALID_INDEX; // Magnification filter
+        int minFilter = INVALID_INDEX; // Minification filter
+        int wrapS = 10497;             // s-coordinate wrapping mode, default is REPEAT
+        int wrapT = 10497;             // t-coordinate wrapping mode, default is REPEAT
+    };
+
     struct TextureInfo
     {
         int textureIndex = INVALID_INDEX; // Index of the texture in the textures array
-        int texCoord = 0;          // Texture coordinate set to use
+        int texCoord = 0;                 // Texture coordinate set to use
     };
 
     struct Material
@@ -274,27 +295,6 @@ namespace
         std::optional<TextureInfo> emissiveTexture;  // Optional emissive texture
     };
 
-    struct Image
-    {
-        std::string uri;                // URI of the image resource
-        int bufferView = INVALID_INDEX; // Index to a bufferView (for embedded image data)
-        std::string mimeType;           // MIME type of the image
-    };
-
-    struct Texture
-    {
-        int source = INVALID_INDEX;  // Index of the image used by this texture
-        int sampler = INVALID_INDEX; // Index of the sampler used by this texture
-    };
-
-    struct Sampler
-    {
-        int magFilter = INVALID_INDEX; // Magnification filter
-        int minFilter = INVALID_INDEX; // Minification filter
-        int wrapS = 10497;             // s-coordinate wrapping mode, default is REPEAT
-        int wrapT = 10497;             // t-coordinate wrapping mode, default is REPEAT
-    };
-
     struct Scene
     {
         std::string name;             // Optional name of the scene
@@ -308,6 +308,7 @@ namespace
         Eigen::Vector3f translation = Eigen::Vector3f::Zero();        // Translation
         Eigen::Quaternionf rotation = Eigen::Quaternionf::Identity(); // Rotation
         Eigen::Vector3f scale = Eigen::Vector3f::Ones();              // Scale
+        bool isMatrixMode = false;
 
         std::optional<int> camera; // Optional index of the camera in this node
         std::optional<int> mesh;   // Optional index of the mesh in this node
@@ -369,7 +370,7 @@ namespace
 struct GLTFData
 {
     Asset asset;
-    
+
     std::vector<Accessor> accessors;
     std::vector<BufferView> bufferViews;
     std::vector<Mesh> meshes;

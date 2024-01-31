@@ -3,7 +3,7 @@
 #include "../GLTFUtil.h"
 
 // a Surface is a group of triangles with a unique Material
-struct cgModelSurface
+struct CgModelSurface
 {
     std::string name;
     MatrixXu F; // triangle indices
@@ -12,4 +12,5 @@ struct cgModelSurface
     const size_t triangleCount() const { return F.cols(); }
     MatrixXu& indices() { return F; }
     const MatrixXu& indices() const { return F; }
+
 };

@@ -1,23 +1,59 @@
-#include "ModelBuilder.h"
-#include "cgmodel/cgModel.h"
+#include "CgModelBuilder.h"
+#include "cgmodel/CgModel.h"
 
 using Eigen::Vector3f;
 
 constexpr int TRI_INDICES = 3;
 
-cgModelPtr ModelBuilder::createCgModel()
+CgModelPtr CgModelBuilder::createCgModel()
 {
     return buildModelList();
 }
 
-const GLTFData& ModelBuilder::convertToGLTF (cgModelPtr model)
+void CgModelBuilder::applyNodeTransforms (const Node& node, const Eigen::Affine3f& parentTransform, const std::vector<Node>& nodes, std::vector<CgModelPtr>& cgModels)
 {
-    GLTFData data;
+    Eigen::Affine3f currentTransform;
 
-   return data;
+    if (node.isMatrixMode)
+    {
+        // Matrix mode: Use the transformation matrix directly
+        currentTransform = parentTransform * node.transform;
+    }
+    else
+    {
+        // TRS mode: Construct the transformation matrix from translation, rotation, and scale
+        currentTransform = parentTransform * (Eigen::Translation3f (node.translation) * node.rotation * Eigen::Scaling (node.scale));
+    }
+
+    if (node.mesh)
+    {
+        // Use the existing transformVertices function to apply the transformation
+        CgModelPtr& model = cgModels[node.mesh.value()];
+        model->transformVertices (currentTransform);
+    }
+
+    // Recursively apply transformations for each child node
+    for (int childIndex : node.children)
+    {
+        applyNodeTransforms (nodes[childIndex], currentTransform, nodes, cgModels);
+    }
 }
 
-cgModelPtr ModelBuilder::buildModelList()
+bool CgModelBuilder::isRootNode (const Node& node, const std::vector<Node>& nodes)
+{
+    // Iterate through all nodes to check if our node is a child of any
+    for (const auto& potentialParent : nodes)
+    {
+        // Check if the current node's index is in the potentialParent's children list
+        if (std::find (potentialParent.children.begin(), potentialParent.children.end(), &node - &nodes[0]) != potentialParent.children.end())
+        {
+            return false; // Found the node in a child list, so it's not a root node
+        }
+    }
+    return true; // The node is not a child of any node, so it's a root node
+}
+
+CgModelPtr CgModelBuilder::buildModelList()
 {
     ModelList cgModels;
 
@@ -25,19 +61,24 @@ cgModelPtr ModelBuilder::buildModelList()
     {
         for (const auto& primitive : mesh.primitives)
         {
-            // one cgModel for each primitive
+            // one CgModel for each primitive
             // each model can have only 1 surface
-            cgModelPtr model = cgModel::create();
+            CgModelPtr model = CgModel::create();
 
             // get the surface indices
-            cgModelSurface surface;
+            CgModelSurface surface;
             if (primitive.indices != INVALID_INDEX)
             {
                 const Accessor& indexAccessor = data.accessors[primitive.indices];
                 getTriangleIndices (surface.F, indexAccessor);
 
+                // get the material settings
+                if (primitive.material != INVALID_INDEX && primitive.material < data.materials.size())
+                {
+                    surface.material = data.materials[primitive.material];
+                }
             }
-           
+
             // get vertex attributes
             if (primitive.attributes.find ("POSITION") != primitive.attributes.end())
             {
@@ -70,13 +111,26 @@ cgModelPtr ModelBuilder::buildModelList()
 
             model->S.push_back (surface);
 
+            model->images = data.images;
+            model->textures = data.textures;
+            model->samplers = data.samplers;
+
             cgModels.push_back (model);
+        }
+    }
+
+    // Iterate through all nodes and apply transformations
+    for (const Node& node : data.nodes)
+    {
+        if (isRootNode (node, data.nodes))
+        {
+            applyNodeTransforms (node, Eigen::Affine3f::Identity(), data.nodes, cgModels);
         }
     }
     return cgModels.empty() ? nullptr : (cgModels.size() > 1 ? forgeIntoOne (cgModels) : cgModels[0]);
 }
 
-void ModelBuilder::getTriangleIndices (MatrixXu& matrix, const Accessor& accessor)
+void CgModelBuilder::getTriangleIndices (MatrixXu& matrix, const Accessor& accessor)
 {
     if (accessor.count < 3)
         throw std::runtime_error ("No triangle indices");
@@ -87,7 +141,7 @@ void ModelBuilder::getTriangleIndices (MatrixXu& matrix, const Accessor& accesso
     // Retrieve the buffer view for the accessor
     const BufferView& bufferView = data.bufferViews[accessor.bufferViewIndex];
     const Buffer& buffer = data.buffers[bufferView.bufferIndex];
-   
+
     // Calculate the starting position of the index data in the binary buffer
     size_t dataStart = bufferView.byteOffset + accessor.byteOffset;
 
@@ -140,7 +194,7 @@ void ModelBuilder::getTriangleIndices (MatrixXu& matrix, const Accessor& accesso
 #endif
 }
 
-void ModelBuilder::getVertexFloatAttribute (MatrixXf& matrix, const Accessor& accessor)
+void CgModelBuilder::getVertexFloatAttribute (MatrixXf& matrix, const Accessor& accessor)
 {
     const BufferView& bufferView = data.bufferViews[accessor.bufferViewIndex];
     const Buffer& buffer = data.buffers[bufferView.bufferIndex];
@@ -154,7 +208,7 @@ void ModelBuilder::getVertexFloatAttribute (MatrixXf& matrix, const Accessor& ac
     std::memcpy (matrix.data(), buffer.binaryData.data() + offset, count * numComponents * sizeof (float));
 }
 
-cgModelPtr ModelBuilder::forgeIntoOne (const ModelList& models)
+CgModelPtr CgModelBuilder::forgeIntoOne (const ModelList& models)
 {
     // Initialize counters for total vertices and triangles.
     uint32_t totalVertices = 0;
@@ -166,7 +220,7 @@ cgModelPtr ModelBuilder::forgeIntoOne (const ModelList& models)
     vertexOffsets.push_back (totalVertices);
 
     // Create a shared pointer for the flattened mesh.
-    auto flattenedModel = std::make_shared<cgModel>();
+    auto flattenedModel = std::make_shared<CgModel>();
 
     // Iterate over the input meshes.
     for (const auto& m : models)
@@ -220,6 +274,10 @@ cgModelPtr ModelBuilder::forgeIntoOne (const ModelList& models)
             tris.col (i) = tri;
         }
     }
+
+    flattenedModel->images = data.images;
+    flattenedModel->textures = data.textures;
+    flattenedModel->samplers = data.samplers;
 
     return flattenedModel;
 }

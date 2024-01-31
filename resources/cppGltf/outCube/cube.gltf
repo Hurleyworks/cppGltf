@@ -3,20 +3,6 @@
     {
         "bufferView": 0,
         "byteOffset": 0,
-        "componentType": 5123,
-        "count": 36,
-        "max": [
-            35.0
-        ],
-        "min": [
-            0.0
-        ],
-        "normalized": false,
-        "type": "SCALAR"
-    },
-    {
-        "bufferView": 1,
-        "byteOffset": 0,
         "componentType": 5126,
         "count": 36,
         "max": [
@@ -33,96 +19,60 @@
         "type": "VEC3"
     },
     {
-        "bufferView": 2,
+        "bufferView": 1,
         "byteOffset": 0,
         "componentType": 5126,
         "count": 36,
-        "max": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "min": [
-            -1.0,
-            -1.0,
-            -1.0
-        ],
         "normalized": false,
         "type": "VEC3"
     },
     {
-        "bufferView": 3,
+        "bufferView": 2,
         "byteOffset": 0,
         "componentType": 5126,
         "count": 36,
-        "max": [
-            1.0,
-            -0.0,
-            -0.0,
-            1.0
-        ],
-        "min": [
-            0.0,
-            -0.0,
-            -1.0,
-            -1.0
-        ],
-        "normalized": false,
-        "type": "VEC4"
-    },
-    {
-        "bufferView": 4,
-        "byteOffset": 0,
-        "componentType": 5126,
-        "count": 36,
-        "max": [
-            1.0,
-            1.0
-        ],
-        "min": [
-            -1.0,
-            -1.0
-        ],
         "normalized": false,
         "type": "VEC2"
+    },
+    {
+        "bufferView": 3,
+        "byteOffset": 0,
+        "componentType": 5125,
+        "count": 36,
+        "normalized": false,
+        "type": "SCALAR"
     }
 ],
 "bufferViews": [
     {
         "buffer": 0,
-        "byteLength": 72,
+        "byteLength": 432,
         "byteOffset": 0,
-        "target": 34963
-    },
-    {
-        "buffer": 0,
-        "byteLength": 432,
-        "byteOffset": 72,
         "target": 34962
     },
     {
         "buffer": 0,
         "byteLength": 432,
-        "byteOffset": 504,
-        "target": 34962
-    },
-    {
-        "buffer": 0,
-        "byteLength": 576,
-        "byteOffset": 936,
+        "byteOffset": 432,
         "target": 34962
     },
     {
         "buffer": 0,
         "byteLength": 288,
-        "byteOffset": 1512,
+        "byteOffset": 864,
         "target": 34962
+    },
+    {
+        "buffer": 0,
+        "byteLength": 144,
+        "byteOffset": 1152,
+        "target": 34963
     }
 ],
 "buffers": [
     {
-        "byteLength": 1800,
-        "uri": "Cube.bin"
+        "byteLength": 1296,
+        "uri": "cube.bin"
     }
 ],
 "materials": [
@@ -182,21 +132,19 @@
 ],
 "nodes": [
     {
-        "mesh": 0,
-        "name": "Cube"
+        "mesh": 0
     }
 ],
 "meshes": [
     {
-        "name": "Cube",
         "primitives": [
             {
                 "attributes": {
-                    "NORMAL": 2,
-                    "POSITION": 1,
-                    "TEXCOORD_0": 4
+                    "NORMAL": 1,
+                    "POSITION": 0,
+                    "TEXCOORD_0": 2
                 },
-                "indices": 0,
+                "indices": 3,
                 "material": 0,
                 "mode": 4
             }
@@ -204,7 +152,6 @@
     }
 ],
 "asset": {
-    "generator": "VKTS glTF 2.0 exporter",
     "version": "2.0"
 }
 
