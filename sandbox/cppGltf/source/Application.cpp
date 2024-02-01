@@ -4,6 +4,7 @@
 #include "GLTFWriter.h"
 #include "GltfBuilder.h"
 #include "CgModelBuilder.h"
+#include "CgMeshOps.h"
 
 const std::string APP_NAME = "cppGltf";
 
@@ -74,6 +75,15 @@ class Application : public Jahley::App
             // build a CgModel from the GLTFData
             CgModelBuilder builder (parser.getData());
             CgModelPtr cgModel = builder.createCgModel();
+
+            // modify the model
+            CgMeshOps ops;
+            float scale = 1.0f;
+            ops.normalizeSize (cgModel, scale);
+            ops.centerVertices (cgModel, scale);
+            float angleDegrees = 90;        // Angle in degrees
+            Eigen::Vector3f axis (0, 1, 0); // Define the axis of rotation (e.g., y-axis)
+            ops.rotateModel (cgModel, angleDegrees, axis);
 
             std::string outCubePath = resourceFolder + "/outCube/cube.gltf";
             std::string cubeBinaryPath = resourceFolder + "/outCube/cube.bin";
